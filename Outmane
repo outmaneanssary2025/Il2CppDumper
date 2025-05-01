@@ -1,0 +1,56 @@
+// Firebase Firestore Metadata Script
+const { initializeApp } = require('firebase/app');
+const { getFirestore, doc, setDoc, updateDoc, getDoc } = require('firebase/firestore');
+
+// تهيئة Firebase
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// دالة لإضافة/تحديث Metadata
+async function updateFirestoreMetadata(documentPath, metadata) {
+  const docRef = doc(db, documentPath);
+  
+  try {
+    await setDoc(docRef, { metadata }, { merge: true });
+    console.log('Metadata updated successfully');
+  } catch (error) {
+    console.error('Error updating metadata:', error);
+  }
+}
+
+// دالة لجلب Metadata
+async function getFirestoreMetadata(documentPath) {
+  const docRef = doc(db, documentPath);
+  
+  try {
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data().metadata || {};
+    }
+    return {};
+  } catch (error) {
+    console.error('Error getting metadata:', error);
+    return {};
+  }
+}
+
+// مثال استخدام
+const documentPath = 'users/user123';
+
+// إضافة/تحديث Metadata
+updateFirestoreMetadata(documentPath, {
+  createdAt: new Date().toISOString(),
+  lastUpdated: new Date().toISOString(),
+  createdBy: 'admin'
+});
+
+// جلب Metadata
+getFirestoreMetadata(documentPath).then(metadata => {
+  console.log('Retrieved metadata:', metadata);
+});
